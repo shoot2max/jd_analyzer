@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JD Power & Trajectory Analyzer</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      margin: 20px;
+      max-width: 960px;
+    }
+    h1 {
+      margin-bottom: 0.2rem;
+    }
+    p.subtitle {
+      margin-top: 0;
+      color: #555;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      padding: 8px;
+      box-sizing: border-box;
+      font-family: monospace;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 10px;
+      color: #555;
+    }
+    #result {
+      margin-top: 30px;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #fafafa;
+    }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    /* Markdown styling */
+    #result h2 {
+      margin-top: 1.2rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.2rem;
+    }
+    #result ul {
+      padding-left: 1.5rem;
+    }
+    #result li {
+      margin-bottom: 0.3rem;
+    }
+    #result p {
+      margin: 0.4rem 0;
+    }
+  </style>
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <h1>Job Description Analyzer</h1>
+  <p class="subtitle">Paste any job description to see its power structure, traps, and realistic trajectory.</p>
+
+  <textarea id="jdInput" placeholder="Paste the job description here"></textarea><br>
+  <button id="analyzeBtn">Analyze</button>
+
+  <div id="status"></div>
+  <div id="result" style="display:none;"></div>
+
+  <script>
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const jdInput = document.getElementById('jdInput');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+
+    analyzeBtn.addEventListener('click', async () => {
+      const jd = jdInput.value.trim();
+      if (jd.length < 50) {
+        alert('Please paste a longer job description (at least 50 characters).');
+        return;
+      }
+
+      statusDiv.textContent = 'Analyzing...';
+      resultDiv.style.display = 'none';
+      resultDiv.innerHTML = '';
+      analyzeBtn.disabled = true;
+      document.body.classList.add('loading');
+
+      try {
+        const resp = await fetch('https://jd-analyzer-backend.onrender.com/analyze-job', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_description: jd })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(data.error || 'Request failed');
+        }
+
+        const md = data.analysis_markdown || '';
+        const html = marked.parse(md);
+
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+
+        if (data.truncated) {
+          statusDiv.textContent = 'Note: JD was long and was truncated for analysis.';
+        } else {
+          statusDiv.textContent = '';
+        }
+
+      } catch (e) {
+        console.error(e);
+        statusDiv.textContent = 'Error: ' + e.message;
+      } finally {
+        analyzeBtn.disabled = false;
+        document.body.classList.remove('loading');
+        if (statusDiv.textContent === 'Analyzing...') {
+          statusDiv.textContent = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
