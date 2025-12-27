@@ -92,7 +92,7 @@
       document.body.classList.add('loading');
 
       try {
-        const resp = await fetch('https://jd-analyzer-backend.onrender.com/analyze-job', {
+        const resp = await fetch('https://jd-analyzer.onrender.com/analyze-job', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ job_description: jd })
@@ -129,4 +129,5 @@
     });
   </script>
 </body>
+
 </html>
