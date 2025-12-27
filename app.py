@@ -6,32 +6,35 @@ from openai import OpenAI
 
 from prompts import SYSTEM_PROMPT
 
-# Load environment variables
+# Load environment variables (works locally with .env; on Render uses dashboard vars)
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise RuntimeError("Set OPENAI_API_KEY in backend/.env as OPENAI_API_KEY=sk-...")
+    raise RuntimeError("Set OPENAI_API_KEY as an environment variable.")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
+
+# Allow requests from any origin (Netlify frontend)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-LOG_DIR = r"C:\PROJECTS\jd_analyzer\data\logs"
+# Portable log directory (works on Windows + Render Linux)
+LOG_DIR = os.path.join(os.getcwd(), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
 @app.route("/analyze-job", methods=["POST", "OPTIONS"])
 def analyze_job():
+    # Handle CORS preflight
     if request.method == "OPTIONS":
-        # CORS preflight request - return explicit headers
         response = jsonify({"status": "ok"})
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type")
         response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         return response, 200
-    
+
     data = request.get_json(silent=True) or {}
     jd = (data.get("job_description") or "").strip()
 
@@ -46,6 +49,7 @@ def analyze_job():
         truncated = True
 
     try:
+        # Call OpenAI Responses API
         completion = client.responses.create(
             model="gpt-4.1-mini",
             input=[
@@ -62,10 +66,9 @@ def analyze_job():
             temperature=0.5,
         )
 
-	# Extract from Responses API format
+        # Extract from Responses API format
         content_item = completion.output[0].content[0].text
-        # In your openai version, `text` is already a string
-        analysis_markdown = content_item
+        analysis_markdown = content_item  # already a string
 
         # Basic logging for debugging / iteration
         log_path = os.path.join(LOG_DIR, "last_analysis.md")
@@ -75,10 +78,12 @@ def analyze_job():
             f.write("\n\n=== ANALYSIS ===\n\n")
             f.write(analysis_markdown)
 
-        return jsonify({
-            "analysis_markdown": analysis_markdown,
-            "truncated": truncated
-        })
+        return jsonify(
+            {
+                "analysis_markdown": analysis_markdown,
+                "truncated": truncated,
+            }
+        )
 
     except Exception as e:
         print("Error analyzing job:", e)
@@ -86,8 +91,5 @@ def analyze_job():
 
 
 if __name__ == "__main__":
-    # Run dev server
-
+    # Local dev server
     app.run(host="0.0.0.0", port=8000, debug=True)
-
-
