@@ -25,8 +25,13 @@ os.makedirs(LOG_DIR, exist_ok=True)
 @app.route("/analyze-job", methods=["POST", "OPTIONS"])
 def analyze_job():
     if request.method == "OPTIONS":
-        # CORS preflight request
-        return "", 200
+        # CORS preflight request - return explicit headers
+        response = jsonify({"status": "ok"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        return response, 200
+    
     data = request.get_json(silent=True) or {}
     jd = (data.get("job_description") or "").strip()
 
@@ -84,4 +89,5 @@ if __name__ == "__main__":
     # Run dev server
 
     app.run(host="0.0.0.0", port=8000, debug=True)
+
 
