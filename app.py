@@ -22,8 +22,11 @@ LOG_DIR = r"C:\PROJECTS\jd_analyzer\data\logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
-@app.route("/analyze-job", methods=["POST"])
+@app.route("/analyze-job", methods=["POST", "OPTIONS"])
 def analyze_job():
+    if request.method == "OPTIONS":
+        # CORS preflight request
+        return "", 200
     data = request.get_json(silent=True) or {}
     jd = (data.get("job_description") or "").strip()
 
@@ -81,3 +84,4 @@ if __name__ == "__main__":
     # Run dev server
 
     app.run(host="0.0.0.0", port=8000, debug=True)
+
