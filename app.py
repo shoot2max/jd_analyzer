@@ -16,7 +16,7 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
-CORS(app)  # in production, restrict origins
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 LOG_DIR = r"C:\PROJECTS\jd_analyzer\data\logs"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -79,4 +79,5 @@ def analyze_job():
 
 if __name__ == "__main__":
     # Run dev server
+
     app.run(host="0.0.0.0", port=8000, debug=True)
