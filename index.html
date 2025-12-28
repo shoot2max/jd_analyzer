@@ -4,79 +4,333 @@
   <meta charset="UTF-8" />
   <title>JD Power & Trajectory Analyzer</title>
   <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #1f2937, #020617);
+      --card-bg: #0b1220;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.4);
+      --danger: #f97373;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.65);
+      --radius-lg: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .shell {
+      width: 100%;
       max-width: 960px;
     }
-    h1 {
-      margin-bottom: 0.2rem;
+
+    .card {
+      background: linear-gradient(145deg, #020617, #020617 50%, #020617 80%, #0b1120);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 26px 26px;
+      position: relative;
+      overflow: hidden;
     }
-    p.subtitle {
-      margin-top: 0;
-      color: #555;
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.16), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(244, 114, 182, 0.12), transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 0;
     }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .title-pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: var(--text-muted);
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 540px;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(15, 23, 42, 0.88);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    .input-section {
+      margin-top: 4px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .input-section {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .textarea-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
     textarea {
       width: 100%;
-      height: 220px;
-      padding: 8px;
-      box-sizing: border-box;
-      font-family: monospace;
+      min-height: 220px;
+      resize: vertical;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--text-main);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
+
+    textarea::placeholder {
+      color: #6b7280;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
     button {
-      padding: 10px 20px;
-      margin-top: 10px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
       cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: radial-gradient(circle at 0% 0%, #22c55e, #0ea5e9);
+      color: #0b1120;
+      box-shadow: 0 10px 25px rgba(15, 118, 110, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
     }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 14px 30px rgba(15, 118, 110, 0.7);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.7);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+      filter: none;
+    }
+
     #status {
-      margin-top: 10px;
-      color: #555;
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
-    #result {
-      margin-top: 30px;
-      padding: 16px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background-color: #fafafa;
+
+    #status.error {
+      color: var(--danger);
     }
+
+    .result-shell {
+      margin-top: 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at 0% 0%, var(--accent-soft), rgba(15, 23, 42, 0.98));
+      padding: 16px 14px 14px;
+      max-height: 420px;
+      overflow: auto;
+    }
+
+    .result-shell.empty {
+      border-style: dashed;
+      border-color: rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .result-shell.empty span {
+      opacity: 0.9;
+    }
+
     .loading {
-      opacity: 0.6;
-      pointer-events: none;
+      cursor: progress;
     }
+
     /* Markdown styling */
     #result h2 {
-      margin-top: 1.2rem;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 0.2rem;
+      margin-top: 1.1rem;
+      padding-bottom: 0.15rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 1rem;
     }
     #result ul {
-      padding-left: 1.5rem;
+      padding-left: 1.3rem;
     }
     #result li {
       margin-bottom: 0.3rem;
     }
     #result p {
-      margin: 0.4rem 0;
+      margin: 0.35rem 0;
+    }
+    #result strong {
+      color: #e5e7eb;
+    }
+
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #6b7280;
     }
   </style>
-  <!-- Marked.js for Markdown rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <h1>Job Description Analyzer</h1>
-  <p class="subtitle">Paste any job description to see its power structure, traps, and realistic trajectory.</p>
+  <div class="shell">
+    <div class="card">
+      <div class="card-inner">
+        <header>
+          <div class="title-block">
+            <div class="title-pill">Career Power Tools</div>
+            <h1>Job Description Analyzer</h1>
+            <p class="subtitle">
+              Paste any job description and get a power, traps, and trajectory read on the role in under 10 seconds.
+            </p>
+          </div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span>Live · AI analysis</span>
+          </div>
+        </header>
 
-  <textarea id="jdInput" placeholder="Paste the job description here"></textarea><br>
-  <button id="analyzeBtn">Analyze</button>
+        <div class="input-section">
+          <div>
+            <div class="textarea-label">
+              <span>Job description</span>
+              <span>Tip: paste the whole posting, not just the title.</span>
+            </div>
+            <textarea id="jdInput" placeholder="Paste the full job description here..."></textarea>
+            <div class="controls">
+              <button id="analyzeBtn">
+                <span>Analyze role power</span>
+              </button>
+              <div id="status"></div>
+            </div>
+          </div>
 
-  <div id="status"></div>
-  <div id="result" style="display:none;"></div>
+          <div class="result-shell empty" id="resultShell">
+            <span>Run an analysis to see decoded archetypes, signals (✅), and traps (⚠️) for this role.</span>
+            <div id="result" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="footnote">
+          Guardrails: This tool never invents company‑specific facts. It calls out when the job description does not contain enough information for a definitive conclusion.
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const analyzeBtn = document.getElementById('analyzeBtn');
     const jdInput = document.getElementById('jdInput');
     const statusDiv = document.getElementById('status');
     const resultDiv = document.getElementById('result');
+    const resultShell = document.getElementById('resultShell');
 
     analyzeBtn.addEventListener('click', async () => {
       const jd = jdInput.value.trim();
@@ -85,7 +339,9 @@
         return;
       }
 
-      statusDiv.textContent = 'Analyzing...';
+      statusDiv.textContent = 'Analyzing…';
+      statusDiv.classList.remove('error');
+      resultShell.classList.remove('empty');
       resultDiv.style.display = 'none';
       resultDiv.innerHTML = '';
       analyzeBtn.disabled = true;
@@ -109,6 +365,7 @@
 
         resultDiv.innerHTML = html;
         resultDiv.style.display = 'block';
+        resultShell.classList.remove('empty');
 
         if (data.truncated) {
           statusDiv.textContent = 'Note: JD was long and was truncated for analysis.';
@@ -119,16 +376,15 @@
       } catch (e) {
         console.error(e);
         statusDiv.textContent = 'Error: ' + e.message;
+        statusDiv.classList.add('error');
       } finally {
         analyzeBtn.disabled = false;
         document.body.classList.remove('loading');
-        if (statusDiv.textContent === 'Analyzing...') {
+        if (statusDiv.textContent === 'Analyzing…') {
           statusDiv.textContent = '';
         }
       }
     });
   </script>
 </body>
-
 </html>
-
